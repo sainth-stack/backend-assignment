@@ -27,15 +27,4 @@ db.connect = async () => {
   }
 };
 
-db.insertData = async (table, data) => {
-  try {
-    const result = await db.insert(table).values(data);
-    console.log('Data inserted successfully:', result);
-    return result;
-  } catch (error) {
-    console.error('Data insertion failed!', error.message);
-    throw error;
-  }
-};
-
 export default db;

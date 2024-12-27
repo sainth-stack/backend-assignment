@@ -1,66 +1,44 @@
 import Mailgun from 'mailgun-js';
 import { MAILGUN_API_KEY, MAILGUN_DOMAIN } from '../config/environment.js';
-import db1 from '../config/db.js'
-import { demoValidationSchema } from '../models/demo.js';
+import db from '../config/db.js'
+import { demoValidationSchema, demoRequestTable } from '../models/demo.js';
 
 const demoRequest = async (req, res) => {
-    if (!req.body || !req.body.name || !req.body.email || !req.body.company || !req.body.status) {
-        return res.status(400).json({ message: 'Missing required fields' });
-    }
-
-    const { name, email, company, status } = req.body || {};
-    if (!name || !email || !company || !status) {
-        return res.status(400).json({ message: 'Missing required fields' });
-    }
-
-    const validationResult = demoValidationSchema.safeParse(req.body);
-    if (!validationResult.success) {
-        return res.status(400).json({
-            message: 'Validation failed',
-            errors: validationResult.error.errors,
-        });
-    }
-
     try {
-        const db = await db1.connect();
+        const validationResult = demoValidationSchema.safeParse(req.body);
+        if (!validationResult.success) {
+            return res.status(400).json({
+                message: 'Validation failed',
+                errors: validationResult.error.errors,
+            });
+        }
+        const { name, email, company, status } = validationResult.data;
 
-        if (!db || !db.schema) {
+        if (!db && !db.schema) {
             return res.status(500).json({ message: 'Database connection is not available' });
         }
 
-        await db.schema.createTableIfNotExists('demo_requests', (table) => {
-            table.increments('id').primary();
-            table.string('name').notNullable();
-            table.string('email').notNullable();
-            table.string('company').notNullable();
-            table.string('status').notNullable();
-        });
-
-        const result = await db.insert('demo_requests').values({
-            name,
-            email,
-            company,
-            status
-        }).returning('*');
-        console.log(result)
-        if (result && result.length > 0) {
-            res.status(201).json({
+        const result = await db.insert(demoRequestTable)
+            .values({ name, email, company, status })
+        if (result) {
+            return res.status(201).json({
                 message: 'Demo request added successfully',
                 result: result[0],
             });
         } else {
-            res.status(500).json({
-                message: 'No data returned from the database',
+            return res.status(500).json({
+                message: 'Failed to add demo request',
             });
         }
     } catch (error) {
         console.error('Error inserting data:', error.message);
-        res.status(500).json({
-            message: 'Failed to add demo request',
+        return res.status(500).json({
+            message: 'Internal server error',
             error: error.message,
         });
     }
 };
+
 
 const sendResetLink = async (req, res) => {
     const { email } = req.body;
