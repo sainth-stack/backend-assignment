@@ -4,6 +4,7 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import userRoutes from './routes/userRoutes.js';
 import cors from "cors";
+import { PORT_Server } from './config/environment.js';
 
 dotenv.config();
 
@@ -20,7 +21,7 @@ app.use((err, req, res, next) => {
   res.status(500).send({ error: 'Something went wrong!' });
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = PORT_Server || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
