@@ -1,17 +1,26 @@
-import cors from 'cors';
 import express from 'express';
-import demoRoutes from './routes/demoRoutes.js'
-import db from './config/db.js'
+import bodyParser from 'body-parser';
+import morgan from 'morgan';
+import dotenv from 'dotenv';
+import userRoutes from './routes/userRoutes.js';
+import cors from "cors";
+
+dotenv.config();
+
 const app = express();
-const port = 4000;
-
-// Middleware setup
 app.use(cors());
-app.use(express.json({ limit: '50mb' }));
 
+app.use(bodyParser.json());
+app.use(morgan('dev'));
 
-app.use('/api',demoRoutes)
-app.listen(port, async() => {
-    await db.connect();
-    console.log(`Server running on port ${port}`);
+app.use('/api/users', userRoutes);
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send({ error: 'Something went wrong!' });
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
 });

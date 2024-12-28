@@ -1,5 +1,6 @@
-export const PORT = 4500;
-export const DATABASE_URL = 'postgres://test_owner:tcWI7unQ6REA@ep-yellow-recipe-a5fny139.us-east-2.aws.neon.tech:5432/test?schema=postgres';
-export const JWT_SECRET = "$2a$12$e9HMflla.nPm9t8LOopEdeTYD.fmAYbxQ4p6XbLNylKRgcDEMXPba";
-export const MAILGUN_API_KEY="your-mailgun-api-key"
-export const MAILGUN_DOMAIN="your-mailgun-domain"
+export const DB_HOST = 'database-1.cluster-c9guaw0ac6vk.us-east-2.rds.amazonaws.com';
+export const DB_USER = 'admin';
+export const DB_PASSWORD = 'Sq08fHa2MOBaccUNlicp';
+export const DB_NAME = 'testdb';
+export const DB_PORT = 3306;
+export const PORT = 3000;

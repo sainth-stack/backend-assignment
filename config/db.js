@@ -1,30 +1,26 @@
-import { drizzle } from 'drizzle-orm/node-postgres';
-import pkg from 'pg';
-import { DATABASE_URL } from './environment.js';
-
-const { Pool } = pkg;
-
-if (!DATABASE_URL) {
-  throw new Error('DATABASE_URL is not defined in the environment variables.');
-}
-
-const pool = new Pool({
-  connectionString: DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false,
-  },
+import mysql from 'mysql2';
+import { DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER } from './environment.js';
+const pool = mysql.createPool({
+  host: DB_HOST,
+  user: DB_USER,
+  password: DB_PASSWORD,
+  database: DB_NAME,
+  port: DB_PORT,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
 });
 
-const db = drizzle(pool);
+const promisePool = pool.promise();
 
-db.connect = async () => {
-  try {
-    console.log('PostgreSQL Database Connection Successful!');
-    return db;
-  } catch (error) {
-    console.error('PostgreSQL Database Connection Failed!', error.message);
-    throw error;
-  }
-};
+// Test the connection
+promisePool.getConnection()
+  .then(connection => {
+    console.log('Database connected successfully!');
+    connection.release(); // Release the connection back to the pool
+  })
+  .catch(err => {
+    console.error('Database connection failed:', err);
+  });
 
-export default db;
+export default promisePool;
