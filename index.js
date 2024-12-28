@@ -14,11 +14,12 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(morgan('dev'));
 
-app.use('/', (req,res)=>{
-  res.status(200).send('Welcome')
-});
 
 app.use('/api/users', userRoutes);
+
+app.use('/', (req, res) => {
+  res.status(200).send('Welcome to the Backend!');
+});
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
